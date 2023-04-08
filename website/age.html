@@ -1,0 +1,60 @@
+<html>
+
+<head>
+  <title>Life Span Predictor</title>
+  <link rel="stylesheet" href="AGE.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+  <script>
+    const arr_questions = ["What is your gender?", "What is your highest qualification?", "Do you live in a rural area?",
+      "Do you have any disabilities?", "Is your water filtered?", "Do you chew tobacco?", "Do you drink alcohol","Where do you get your treatment from?"];
+    const keys = ["sex", "highest_qualification", "rural", "disability_status", "is_water_filter", "chew", "smoke", "alcohol","treatment_source"];
+    const hints = ["1 for male, 2 for female",
+                    "Enter the highest standard you studied till",
+                  "1 if you live in a rural area, 2 if not",
+                  "0 if you do not have a disability, 1 if you do",
+                  "2 if you do not have a water filter, 1 if you do",
+                  "On a scale from 0 to 10 rate your tobacco chew usage",
+                  "On a scale from 0 to 10 rate your tobacco smoking usage",
+                  "On a scale from 0 to 10 rate your alcohol usage",
+                  "On a scale from 0 to 10 rate your local medical facilities",
+              ]
+    const answers = []
+    let count = 0
+    let age = 0
+    $(document).ready(function () {
+      $("button").click(function () {
+        if (count != 9) {
+          $("textarea").show();
+          console.log(answers)
+          $("H1").text(arr_questions[count]);
+          $("P").text(hints[count]);
+          answers.push(parseFloat($('textarea').val()));
+          count += 1;
+        } else {
+          $("textarea").hide();
+          var result = {};
+          keys.forEach((key, i) => result[key] = answers[i]);
+          console.log(result);
+          fetch("http://127.0.0.1:8000/predict/", {
+            method: "POST",
+            body: JSON.stringify(result),
+            headers: {
+              "Content-type": "application/json; charset=UTF-8"
+            }
+          }).then((response) => response.json())
+            .then((json) => { $("H1").text("Your predicted life expectancy is " + json["age"][0]) + " years"; console.log(json["age"][0]); });
+
+        }
+      });
+    });
+  </script>
+</head>
+
+<body bgcolor=#2C2C34">
+  <H1>Ready?</H1>
+  <p id="moreinfo">Test</p>
+  <textarea class="solution" id="solution" name="solution" rows="4" cols="50"></textarea>
+  <button class="rounded-button" href="age.html">Next</button>
+</body>
+
+</html>
